@@ -27,10 +27,19 @@ jobs:
 
     - name: Replace Strings in Build Output
       run: |
-        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lua", "*.pps", "*.cpp", "*.po" | ForEach-Object {
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lua", "*.pps", "*.cpp", "*.po", ".pas" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
-            $content = $content -replace """Cheat Engine \\S+""", """LLL ABX"""
+            $content = $content -replace """Cheat Engine 7.5""", """LLL ABX"""
             $content = $content -replace """Cheat Engine""", """XXX Abs"""
+            $content = $content -replace "'Cheat Engine 7.5'", "'LLL ABX'"
+            $content = $content -replace "'Cheat Engine'", "'XXX Abs'"
+            Set-Content $_.FullName $content
+        }
+
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lfm", "*.lrt", "*.lpr", "*.dfm" | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            $content = $content -replace "Cheat Engine", "LLL ABX"
+            $content = $content -replace "CheatEngine", "mnok2wndun"
             Set-Content $_.FullName $content
         }
       shell: pwsh
