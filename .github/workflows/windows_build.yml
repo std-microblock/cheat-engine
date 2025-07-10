@@ -45,11 +45,11 @@ jobs:
       shell: pwsh
     
     - name: Build CheatEngine
-      run: \
+      run: |
         cd "Cheat Engine"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
-      shell: cmd
+      shell: pwsh
 
     - name: Replace Strings in Binaries
       run: |
