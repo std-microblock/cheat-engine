@@ -13,20 +13,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Download Lazarus Installer
-      run: |
-        Invoke-WebRequest -Uri "https://zenlayer.dl.sourceforge.net/project/lazarus/Lazarus%20Windows%2064%20bits/Lazarus%202.2.2/lazarus-2.2.2-fpc-3.2.2-win64.exe?viasf=1" -OutFile "lazarus-installer.exe"
-        Invoke-WebRequest -Uri "https://zenlayer.dl.sourceforge.net/project/lazarus/Lazarus%20Windows%2064%20bits/Lazarus%202.2.2/lazarus-2.2.2-fpc-3.2.2-cross-i386-win32-win64.exe?viasf=1" -OutFile "lazarus-installer-i386.exe"
-      shell: pwsh
-
-    - name: Install Lazarus
-      run: |
-        .\lazarus-installer.exe /SILENT /NORESTART
-        .\lazarus-installer-i386.exe /SILENT /NORESTART
-        C:\lazarus\startlazarus.exe --pcp=C:\lazarus\cheatengine
-        sleep 5
-      shell: pwsh
-
+    - uses: gcarreno/setup-lazarus@v3
+      with:
+        lazarus-version: "2.2.2"
     - name: Replace Strings in Build Output
       run: |
         Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lua", "*.pps", "*.cpp", "*.po", ".pas" | ForEach-Object {
