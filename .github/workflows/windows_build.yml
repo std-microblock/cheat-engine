@@ -23,6 +23,8 @@ jobs:
       run: |
         .\lazarus-installer.exe /SILENT /NORESTART
         .\lazarus-installer-i386.exe /SILENT /NORESTART
+        C:\lazarus\startlazarus.exe --pcp=C:\lazarus\cheatengine
+        sleep 5
       shell: pwsh
 
     - name: Replace Strings in Build Output
@@ -46,8 +48,6 @@ jobs:
     
     - name: Build CheatEngine
       run: |
-        C:\lazarus\startlazarus.exe --pcp=C:\lazarus\cheatengine
-        sleep 10
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
       shell: cmd
