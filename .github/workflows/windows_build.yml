@@ -38,7 +38,7 @@ jobs:
             Set-Content $_.FullName $content
         }
 
-        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lfm", "*.lrt", "*.lpr", "*.dfm" | ForEach-Object {
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lfm", "*.lrt", "*.dfm" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
             $content = $content -replace "Cheat Engine", "LLL ABX"
             $content = $content -replace "CheatEngine", "mnok2wndun"
