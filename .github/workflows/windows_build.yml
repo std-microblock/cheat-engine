@@ -16,17 +16,13 @@ jobs:
     - name: Download Lazarus Installer
       run: |
         Invoke-WebRequest -Uri "https://zenlayer.dl.sourceforge.net/project/lazarus/Lazarus%20Windows%2064%20bits/Lazarus%202.2.2/lazarus-2.2.2-fpc-3.2.2-cross-i386-win32-win64.exe?viasf=1" -OutFile "lazarus-installer-i386.exe"
-      shell: pwsh
-
-    - name: Install Lazarus
-      run: |
         .\lazarus-installer-i386.exe  /VERYSILENT /SP- /DIR=D:\a\_temp\installers\lazarus
+      shell: pwsh
         
     - uses: gcarreno/setup-lazarus@v3
       with:
         lazarus-version: "2.2.2"
 
-      shell: pwsh
 
     - name: Replace Strings in Build Output
       run: |
