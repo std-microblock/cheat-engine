@@ -34,11 +34,76 @@ jobs:
 
     - name: Replace Strings in Build Output
       run: |
-        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.*" | ForEach-Object {
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lua", "*.pps", "*.cpp", "*.po" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
-            $content = $content -replace "Cheat Engine \\S+", "LLL ABX"
-            $content = $content -replace "Cheat Engine", "XXX Abs"
+            $content = $content -replace "\"Cheat Engine \\S+\"", "\"LLL ABX\""
+            $content = $content -replace "\"Cheat Engine\"", "\"XXX Abs\""
             Set-Content $_.FullName $content
+        }
+      shell: pwsh
+
+    - name: Replace Strings in Binaries
+      run: |
+        function Replace-Bytes {
+            param (
+                [byte[]]$Bytes,
+                [byte[]]$OldBytes,
+                [byte[]]$NewBytes
+            )
+
+            if ($OldBytes.Length -ne $NewBytes.Length) {
+                throw "Old and new byte arrays must have the same length for in-place replacement."
+            }
+
+            $index = 0
+            while ($true) {
+                $found = $false
+                for ($i = $index; $i -le ($Bytes.Length - $OldBytes.Length); $i++) {
+                    $match = $true
+                    for ($j = 0; $j -lt $OldBytes.Length; $j++) {
+                        if ($Bytes[$i + $j] -ne $OldBytes[$j]) {
+                            $match = $false
+                            break
+                        }
+                    }
+                    if ($match) {
+                        
+                        for ($k = 0; $k -lt $NewBytes.Length; $k++) {
+                            $Bytes[$i + $k] = $NewBytes[$k]
+                        }
+                        $index = $i + $NewBytes.Length 
+                        $found = $true
+                        break
+                    }
+                }
+                if (-not $found) {
+                    break 
+                }
+            }
+            return $Bytes
+        }
+
+        $filesToModify = @(
+            "Cheat Engine/bin/cheatengine-x86_64.exe",
+            "Cheat Engine/bin/cheatengine-i386.exe"
+        )
+
+        $oldString1 = [System.Text.Encoding]::ASCII.GetBytes("Cheat Engine") + 0
+        $newString1 = [System.Text.Encoding]::ASCII.GetBytes("XXXXX YYYYYY") + 0
+
+        $oldString2 = [System.Text.Encoding]::ASCII.GetBytes("CheatEngine") + 0
+        $newString2 = [System.Text.Encoding]::ASCII.GetBytes("CCCCCCCCCCC") + 0
+
+        foreach ($filePath in $filesToModify) {
+            if (Test-Path $filePath) {
+                $bytes = [System.IO.File]::ReadAllBytes($filePath)
+                $bytes = Replace-Bytes -Bytes $bytes -OldBytes $oldString1 -NewBytes $newString1
+                $bytes = Replace-Bytes -Bytes $bytes -OldBytes $oldString2 -NewBytes $newString2
+
+                [System.IO.File]::WriteAllBytes($filePath, $bytes)
+            } else {
+                Write-Host "File not found: $filePath"
+            }
         }
       shell: pwsh
 
@@ -47,28 +112,3 @@ jobs:
       with:
         name: CheatEngine-Windows-Build
         path: Cheat Engine/bin
-
-    - name: Replace Strings in Binaries
-      run: |
-        $filesToModify = @(
-            "Cheat Engine/bin/cheatengine-x86_64.exe",
-            "Cheat Engine/bin/cheatengine-i386.exe"
-        )
-
-        foreach ($filePath in $filesToModify) {
-            if (Test-Path $filePath) {
-                # Read the file as raw bytes
-                $bytes = [System.IO.File]::ReadAllBytes($filePath)
-                $content = [System.Text.Encoding]::Default.GetString($bytes) # Use Default encoding for broader compatibility
-
-                # Perform replacements
-                $content = $content -replace "Cheat Engine", "XXXXX YYYYYY"
-                $content = $content -replace "CheatEngine", "CCCCCCCCCCC"
-
-                # Write back the modified content as bytes
-                [System.IO.File]::WriteAllBytes($filePath, [System.Text.Encoding]::Default.GetBytes($content))
-            } else {
-                Write-Host "File not found: $filePath"
-            }
-        }
-      shell: pwsh
