@@ -25,13 +25,6 @@ jobs:
         .\lazarus-installer-i386.exe /SILENT /NORESTART
       shell: pwsh
 
-    - name: Build CheatEngine
-      run: \
-        cd "Cheat Engine"
-        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
-        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
-      shell: cmd
-
     - name: Replace Strings in Build Output
       run: |
         Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lua", "*.pps", "*.cpp", "*.po" | ForEach-Object {
@@ -41,6 +34,13 @@ jobs:
             Set-Content $_.FullName $content
         }
       shell: pwsh
+    
+    - name: Build CheatEngine
+      run: \
+        cd "Cheat Engine"
+        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
+        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
+      shell: cmd
 
     - name: Replace Strings in Binaries
       run: |
