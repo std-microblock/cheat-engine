@@ -48,8 +48,8 @@ jobs:
     
     - name: Build CheatEngine
       run: |
-        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
-        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
+        lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
+        lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
       shell: cmd
 
     - name: Replace Strings in Binaries
