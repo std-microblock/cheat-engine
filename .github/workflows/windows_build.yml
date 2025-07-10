@@ -46,7 +46,6 @@ jobs:
     
     - name: Build CheatEngine
       run: |
-        cd "Cheat Engine"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
       shell: pwsh
