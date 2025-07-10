@@ -1,0 +1,74 @@
+name: Windows Build and Upload
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download Lazarus Installer
+      run: |
+        Invoke-WebRequest -Uri "https://zenlayer.dl.sourceforge.net/project/lazarus/Lazarus%20Windows%2064%20bits/Lazarus%202.2.2/lazarus-2.2.2-fpc-3.2.2-win64.exe?viasf=1" -OutFile "lazarus-installer.exe"
+        Invoke-WebRequest -Uri "https://zenlayer.dl.sourceforge.net/project/lazarus/Lazarus%20Windows%2064%20bits/Lazarus%202.2.2/lazarus-2.2.2-fpc-3.2.2-cross-i386-win32-win64.exe?viasf=1" -OutFile "lazarus-installer-i386.exe"
+      shell: pwsh
+
+    - name: Install Lazarus
+      run: |
+        .\lazarus-installer.exe /SILENT /NORESTART
+        .\lazarus-installer-i386.exe /SILENT /NORESTART
+      shell: pwsh
+
+    - name: Build CheatEngine
+      run: \
+        cd "Cheat Engine"
+        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
+        C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
+      shell: cmd
+
+    - name: Replace Strings in Build Output
+      run: |
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.*" | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            $content = $content -replace "Cheat Engine \\S+", "LLL ABX"
+            $content = $content -replace "Cheat Engine", "XXX Abs"
+            Set-Content $_.FullName $content
+        }
+      shell: pwsh
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: CheatEngine-Windows-Build
+        path: Cheat Engine/bin
+
+    - name: Replace Strings in Binaries
+      run: |
+        $filesToModify = @(
+            "Cheat Engine/bin/cheatengine-x86_64.exe",
+            "Cheat Engine/bin/cheatengine-i386.exe"
+        )
+
+        foreach ($filePath in $filesToModify) {
+            if (Test-Path $filePath) {
+                # Read the file as raw bytes
+                $bytes = [System.IO.File]::ReadAllBytes($filePath)
+                $content = [System.Text.Encoding]::Default.GetString($bytes) # Use Default encoding for broader compatibility
+
+                # Perform replacements
+                $content = $content -replace "Cheat Engine", "XXXXX YYYYYY"
+                $content = $content -replace "CheatEngine", "CCCCCCCCCCC"
+
+                # Write back the modified content as bytes
+                [System.IO.File]::WriteAllBytes($filePath, [System.Text.Encoding]::Default.GetBytes($content))
+            } else {
+                Write-Host "File not found: $filePath"
+            }
+        }
+      shell: pwsh
