@@ -46,6 +46,8 @@ jobs:
     
     - name: Build CheatEngine
       run: |
+        C:\lazarus\startlazarus.exe --pcp=C:\lazarus\cheatengine
+        sleep 10
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 64-Bit"
         C:\lazarus\lazbuild.exe "Cheat Engine/cheatengine.lpi" --build-mode="Release 32-Bit"
       shell: cmd
