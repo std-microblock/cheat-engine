@@ -44,6 +44,13 @@ jobs:
             $content = $content -replace "CheatEngine", "mnok2wndun"
             Set-Content $_.FullName $content
         }
+
+        Get-ChildItem -Path "Cheat Engine" -Recurse -Include "*.lpi", "*.lpr" | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            $content = $content -replace ">Cheat Engine<", ">LLL ABX<"
+            $content = $content -replace ">CheatEngine<", ">mnok2wndun<"
+            Set-Content $_.FullName $content
+        }
       shell: pwsh
     
     - name: Build CheatEngine
